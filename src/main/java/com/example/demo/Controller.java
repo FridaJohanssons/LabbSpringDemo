@@ -18,30 +18,29 @@ public class Controller { //översätter http requests
         this.movieRepository = movieRepository;
     }
 
-    @GetMapping("/hello")
-    public Optional<Movie> sayHello() {
+//    @GetMapping("/hello")
+//    public Optional<Movie> sayHello() {
+//
+//        movieRepository.save(new Movie(0,"Test","Test"));
+//
+//        return movieRepository.findById(1L);
+//    }
 
-
-        movieRepository.save(new Movie(0,"Test","Test"));
-
-        return movieRepository.findById(1L);
-    }
-
+    //Ett get request för att läsa all info från databasen.
     @GetMapping("/movies")
     public List<Movie> all() {
         return movieRepository.findAll();
     }
 
-//    @GetMapping("/persons/{id}")
-//    public ResponseEntity<Person> one(@PathVariable Long id){
-//        var result = personRepository.findById(id);
-//        if(result.isPresent())
-//            return new ResponseEntity<Person>(result.get(), HttpStatus.OK);
-//        return new ResponseEntity("User with"  + id + "nor found", HttpStatus.NOT_FOUND);
-//
-//
+    //Ett get request för att läsa specefik info från databasen(info med id...).
+    // Detta är koden nedan fast utan status.not_found 404. Vilken man ska ha!
+//    @GetMapping ("/movies/{id}")
+//    public Optional<Movie> one(@PathVariable Long id){
+//        return movieRepository.findById(id);
 //    }
 
+
+    //Detta funkar men se längre ner för kortare kod
 
 //    @GetMapping("/persons/{id}")
 //    public Person one(@PathVariable Long id){
@@ -56,15 +55,33 @@ public class Controller { //översätter http requests
 //
 //
 //    }
+    //Kortare kod
+//    @GetMapping("/movies/{id}")
+//    public Movie one(@PathVariable Long id){
+//        var result = movieRepository.findById(id);
+//        return result.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Id "
+//                + id + " not found"));
+//    }
+
+    //Ännu kortare kod, den är bra. Kastas exception om film med id.. inte finns.
+//    @GetMapping("/movies/{id}")
+//    public Movie one(@PathVariable Long id){
+//        return movieRepository.findById(id)
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Id "
+//                + id + " not found"));
+//    }
+    //Sista vertionen. Här tillhandahålls en film om det inte hittas en film.
+    // Bra om man inte vill kasta en exeption utan istället skapa en tom film.
     @GetMapping("/movies/{id}")
     public Movie one(@PathVariable Long id){
-        var result = movieRepository.findById(id);
-        return result.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"User with"
-                + id + "nor found"));
-
-
+        return movieRepository.findById(id)
+                .orElse(new Movie());
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,"Id "
+//                        + id + " not found"));
     }
-    @PostMapping("/movie")
+
+    //Post request skapar en ny film med 201 created medelande.
+    @PostMapping("/movies")
     @ResponseStatus(HttpStatus.CREATED)
     public Movie create(@RequestBody Movie movie){
         return movieRepository.save(movie);
